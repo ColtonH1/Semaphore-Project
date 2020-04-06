@@ -1,0 +1,137 @@
+    //global semaphores
+    public static Semaphore PW = new Semaphore(3, true ); //3 PostWorkers are available at any given time
+    public static Semaphore line = new Semaphore(10, true );
+    public static Semaphore lineMutex = new Semaphore( 1, true );   //mutex to wait in line
+    public static Semaphore pwMutex = new Semaphore( 1, true );     //mutex to choose pw
+    public static Semaphore scaleMutex = new Semaphore( 1, true );  //mutex to claim the scale
+    public static Semaphore lineToPWMutex = new Semaphore( 1, true );  //mutex to move from line to PW
+    public static GenLinkedList PWQueue = new GenLinkedList(); //Note: this is a file from a project in CS 3345 with Greg Ozbirn as the professor 
+    public static GenLinkedList custTaskQ = new GenLinkedList();
+    //semaphore for all threads to check if scale is available
+    public static Semaphore scale = new Semaphore(1); //binary semaphore 
+    public static Thread PWThread[] = new Thread[totalWorker];
+
+main()
+{
+    //set the limit of total customer and total workers
+    int totalCustomer = 50; //50 customers come in during the day
+    int totalWorker = 3; //there are 3 workers
+
+    //create semaphore to keep track of the number of customers inside
+    semaphore inside = 0; //up to 10
+    //semaphore for mutual exclusion
+    semaphore mutex = 1; //mutual exclusion
+
+
+    Customers custArray[] = new Customer[totalCustomer];
+    Thread custThread[] = new Thread[totalCustomer];
+    for(int i = 0; i < totalCustomer; i++)
+    {
+        //create new customer using custArray[i] //new Customer(i)
+        //create new thread using custThread[custArray[i]]
+        //start
+    }
+
+    PostWorkers PWArray[] = new PostWorkers[totalWorker];
+    Thread PWThread[] = new Thread[totalWorker];
+    for(int i = 0; i < totalWorker; i++)
+    {
+        //create new worker using PWArray[i] //new PostWorkers()
+        //create new thread using PWThread[PWArray[i]]
+        //start
+    }
+}
+
+public class Customers
+{
+    Random rand = new Random(); //use Random class to decide a number 0-2
+    int num; //holds the num id of the customer
+    bool useLine = false; //will check if customer had to wait in line vs went straight to the PW
+
+    enum Task
+    {
+        BUY, LETTER, PACKAGE;
+    }
+
+    Customers(int num)
+    {
+        this.num = num; 
+    }
+
+    public void run()
+    {
+        //set customer event
+        int randNum = rand.nextInt(3); 
+        if(rand == 0)
+            Task task = Task.BUY;
+        else if(rand == 1)
+            Task task = Task.LETTER;
+        else if(rand == 2)
+            Task task = Task.PACKAGE;
+        else
+            //send error
+        while(true)
+        {
+            try
+            {
+                //wait for line to be empty enough to enter
+                PostOffice.lineMutex.acquire();
+                PostOffice.line.acquire();
+                System.out.println("Customer " + num + " enters post office");
+                PostOffice.lineMutex.release();
+
+                PW.acquire(); //retrieves one postal worker or waits for one
+                //display that PW # is helping customer #
+
+                //add task and id num to the PostWorkers queue
+
+                //send information to PostalWorkers: customer num, worker num, and task chosen by customer
+                
+                PostOffice.PW.release();  //signal PW is available
+                System.out.println("Customer " + num + " finished " + askEnd); //display they are leaving
+
+
+                System.out.println("Customer " + num + " leaves post office");
+                //signal someone else may enter
+                PostOffice.line.release(); //customer has officially left the building
+
+
+            }
+        }
+    }
+
+}
+
+public class PostWorkers
+{
+    PostWorkers()
+    {
+    }
+
+
+
+    public void run()
+    {
+        while(true)
+        {
+            try
+            {
+                if(task == Task.BUY)
+                {
+                    //thread should sleep for 1 second (1s : 60s ratio for length of time to accomplish task)
+                }
+                else if(task == Task.LETTER)
+                {
+                    //thread should sleep for 1.5 seconds (1s : 60s ratio for length of time to accomplish task)
+                }
+                else if(task == Task.PACKAGE)
+                {
+                    scale.acquire(); //wait until its available
+                    //display saying PW is using scales
+                    //thread should sleep for 2 seconds (1s : 60s ratio for length of time to accomplish task)
+                    scale.release(); //signal its available
+                }
+            }
+        }
+    }
+}
